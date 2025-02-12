@@ -1,0 +1,129 @@
+<!-- This is for extending the base.html template! -->
+{% extends 'base.html' %}
+
+<!-- Title of the page -->
+{% block title %} Update User Details {% endblock %}
+
+<!-- Block for page itself -->
+{% block content %}
+
+{% for message in get_flashed_messages() %}
+	
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+	  {{ message }}
+	  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+
+	
+{% endfor %}
+
+<!-- Make form block -->
+<div class="logo">Edit user: {{id_change.username}}</div>
+<div class="update-item">
+    <form method="POST" action="{{ url_for('edit_user', id=id_change.id) }}" class="form form-login">
+        <!-- Protects against some sort of cyberattack related to form submission -->
+        {{ form.hidden_tag() }}
+        <!-- Token needed for validation -->
+        {{ form.csrf_token }}  
+
+        <div class="form-field">
+            <label class="user" for="edit-username"></label>
+            <input type="text" id="edit-username" name="edit-username" value="{{ id_change.username }}" pattern="[A-Za-z0-9_]+" title="Only letters, numbers and underscores are allowed" required>
+        </div>
+
+        <div class="form-field">
+            <label class="email" for="edit-email"></label>
+            <input type="email" id="edit-email" name="edit-email" value="{{ id_change.email }}" required>
+        </div>
+
+        <div class="form-field">
+            <label class="lock" for="edit-password"></label>
+            <input type="password" id="edit-password" name="edit-password">
+          </div>
+      
+          <div class="form-field">
+            <label class="lock" for="edit-re-password"></label>
+            <input type="password" id="edit-re-password" name="edit-re-password">
+          </div>
+          
+          <div class="form-field">
+            <label class="organization" for="edit-organization"></label>
+            <input type="text" id="edit-organization" name="edit-organization" value="{{ id_change.organization }}" pattern="[A-Za-z0-9_]+" title="Only letters, numbers and underscores are allowed" required>
+          </div>
+          
+          <div class="form-field">
+            <label class="user-path" for="edit-user-path"></label>
+            <input type="text" id="edit-user-path" name="edit-user-path" value="{{ id_change.user_path }}" required>
+          </div>
+
+          <div class="form-field">
+            <label class="auth_selection" for="edit-auth_level"></label>
+            <select id="edit-auth_level" class="form-control" name="edit-auth_level" required>
+                <option value="none" {% if id_change.auth_level == 'none' %}selected{% endif %}>Select the access level:</option>
+                <option value="admin" {% if id_change.auth_level == 'admin' %}selected{% endif %}>Admin</option>
+                <option value="guest" {% if id_change.auth_level == 'guest' %}selected{% endif %}>Guest</option>
+            </select>
+          </div>
+        
+          <h1>Select Pages</h1>
+          <div class="form-field checkbox-container">
+            <div class="checkbox-item">
+                <input type="checkbox" class="form-control-checkbox" id="aligner" name="aligner" {% if id_change.aligner %}checked{% endif %} />
+                <label for="aligner"> Aligner</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" class="form-control-checkbox" id="diffexp" name="diffexp" {% if id_change.diffexp %}checked{% endif %} />
+                <label for="diffexp"> Differential Expression</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" class="form-control-checkbox" id="qc_pages" name="qc_pages" {% if id_change.qc_pages %}checked{% endif %} />
+                <label for="qc_pages"> Quality Control</label>
+            </div>
+            <div class="checkbox-item">
+                <input type="checkbox" class="form-control-checkbox" id="ssg" name="ssg" {% if id_change.ssg %}checked{% endif %} />
+                <label for="ssg"> Sample Sheet Generator</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" class="form-control-checkbox" id="select_all" name="Select_all">
+              <label for="select_all"> Select All</label>
+            </div>
+          </div>
+
+        <div class="form-field">
+            <input type="submit" value="Update">
+        </div>
+    </form>
+    <p class="text--center"><a href="/logout">Logout and go back to the log in page</a></p>
+    <p class="text--center"><a href="/register">Register a new user</a> or <a href="/update">Select a different user</a> </p> 
+</div>
+
+{% if form.errors %}
+<div class="error-msg-div">
+    <p>Something went wrong during the update process:</p>
+    {% for key, val in form.errors.items() %}
+    <p> {{ key.capitalize().replace('_', ' ') }} field: {{ val[0] }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- {% with messages = get_flashed_messages() %} 
+{% if messages %} 
+<ul class="flashes"> 
+  {% for message in messages %} 
+  <li>{{ message }}</li> 
+  {% endfor %} 
+</ul> 
+{% endif %} 
+{% endwith %} -->
+
+<script>
+    document.getElementById('select_all').addEventListener('change', function() {
+        let checkboxes = document.querySelectorAll('.form-control-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+  </script>
+
+
+{% endblock %}

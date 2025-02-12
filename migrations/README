@@ -1,0 +1,105 @@
+Single-database configuration for Flask.
+
+Alembic is a database migration tool for SQLAlchemy, a library that provides an SQL toolkit and object relational mapper for database interactions. It helps in the creation, management and invocation of change management scripts for a relational database. This webapp also utilizes the power of SQLAlchemy and Alembic to manage the database and control changes. 
+
+#### Install sql-alchemy
+
+It should come with the environment.py file, installed as part of the conda environment. Else, install it using 
+
+        pip install flask-sqlachemy
+
+Once installed, it is imported into the app and used.
+
+#### Install Alembic
+
+Alembic should also be installed via pip:
+
+        pip install alembic
+
+#### Setting up the database
+
+##### Configuring the database
+
+To add the database to the app, use the following command on the app.py script (also to any other scripts that use the  database).
+
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///sqlite.db" # Name it accordingly
+
+Then we need to initialize the database. Since this webapp uses a shared database, we setup the script to access the database at the path common/models.py. On that script, we can initialize the database.
+
+        db = SQLAlchemy()
+
+This db was imported on the app.py and registration.py scripts, where database was also initiated for operations.
+
+        db.init_app(app) 
+
+#### Setting up Alembic
+
+In the app.py scrit (and registration), we import alembic migration and after initializing the database, we call migration
+
+        migrate = Migrate(app, db)
+
+
+##### Initializing Alembic
+
+First, we set up Alembic in the project. Run the following command in your project directory to initialize Alembic:
+
+        flask db init
+
+This command creates a migrations directory, which will contain configuration and migration scripts.
+
+#### Configuring Alembic
+
+##### Creating the Initial Migration
+
+Design the database based on your requirements in the model.py file. 
+
+To create the initial migration, run:
+
+        flask db init
+        flask db migrate -m "Initial migration."
+
+Check the initial migration script in the migrations/versions folder to see if all required inputs are cached in the intialization script and if you're good with it, run the upgrade command.
+
+        flask db upgrade
+
+This ensures the instructions reflect your setup with db.init_app(app) and Migrate(app, db). 
+
+
+##### How to add modifications to the shared database 
+
+- Cathing migrations automatically
+
+        - Here, we have the shared database at common/models.py file. It is connected to the alembic database. 
+
+        - To add a new entry to the database, add the entry to the Class user on the model.py file. 
+
+        - Since the migrations are tracked, once they are added, go to the main app folder and run the following command to initiate the migration. 
+
+                flask db migrate - "message"
+
+        This will create a migration script for the new migrations in the migrations/versions folder. Check the script and make necessary changes (since the changes are automatically cached, it might not be perfect all the time)
+
+        - Once the migration script is verified, see the following command to apply the migration.
+
+                flask db upgrade
+
+        - Check if the changes are made to the script. 
+
+- Adding manual migrations
+
+        - To add changes to the database manually, we use the revision feature of the alembic module.
+
+        - Run the following command
+
+                flask db revision -m "mention the revision"
+
+        - A new script with the revision message will be generated in the migations/versions folder. Go to the script and make necessary changes to the script according to your needs
+
+        - Once modifications are done and script is saved, run;
+
+                flask db upgrade
+
+        - The changes should reflect on the database now. Everytime any structural changes are made to the database/to be made to the database, ensure that it is ran through alembic.
+
+        
+

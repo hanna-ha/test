@@ -1,0 +1,121 @@
+<!-- This is for extending the base.html template! -->
+{% extends 'base.html' %}
+
+<!-- Title of the page -->
+{% block title %} Register {% endblock %}
+
+<!-- Block for page itself -->
+{% block content %}
+
+
+<!-- Make form block -->
+<div class="logo">TempoLinc Portal Register</div>
+<div class="login-item">
+  <form action="{{ url_for('register') }}" method="POST" class="form form-login">
+    <!-- Protects against some sort of cyberattack related to form submission -->
+    {{ form.hidden_tag() }}
+    <!-- Token needed for validation -->
+    {{ form.csrf_token }}  
+
+    <div class="form-field">
+      <label class="user" for="login-username"></label>
+      {{ form.username(placeholder = 'Username') }} 
+    </div>
+
+    <div class="form-field">
+      <label class="email" for="login-email"></label>
+      {{ form.email(placeholder = 'Email') }}
+    </div>
+
+    <div class="form-field">
+      <label class="lock" for="login-password"></label>
+      {{ form.password(placeholder = 'Password') }}
+    </div>
+
+    <div class="form-field">
+      <label class="lock" for="login-password"></label>
+      {{ form.repeat_password(placeholder = 'Repeat Password') }}
+    </div>
+    
+    <div class="form-field">
+      <label class="organization" for="login-organization"></label>
+      {{ form.organization(placeholder='Organization') }}
+    </div>
+    
+    <div class="form-field">
+      <label class="user-path" for="user-path"></label>
+      {{ form.user_path(placeholder='User Path (optional)') }}
+      <div class="popup">
+        <button class="button button1" type="button" onclick="myFunction()"><i class="fa fa-question-circle" aria-hidden="true"></i></button>
+        <span class="popuptext" id="myPopup"> Add the full directory path from which the user can access the reads [Only if it is different from the reads_directory selected on directories.csv] </span>
+      </div>
+    </div>
+    
+    <div class="form-field">
+      <label class="auth_selection" for="auth_level"></label>
+      {{ form.auth_level(class="form-control") }}
+    </div>
+
+    <h1>Select Pages</h1>
+    <div class="form-field checkbox-container">
+      <div class="checkbox-item">
+        {{ form.aligner(class="form-control-checkbox") }}
+        <label for="aligner"> Aligner</label>
+      </div>
+      <div class="checkbox-item">
+        {{ form.diffexp(class="form-control-checkbox") }}
+        <label for="diffexp"> Differential Expression</label>
+      </div>
+      <div class="checkbox-item">
+        {{ form.qc_pages(class="form-control-checkbox") }}
+        <label for="qc_pages"> Quality Control</label>
+      </div>
+      <div class="checkbox-item">
+        {{ form.ssg(class="form-control-checkbox") }}
+        <label for="ssg"> Sample Sheet Generator</label>
+      </div>
+      <div class="checkbox-item">
+        {{ form.select_all(class="form-control-checkbox") }}
+        <label for="select_all"> Select All</label>
+      </div>
+    </div>
+
+    <!-- Button to submit -->
+    <div class="form-field">
+      <input type="submit" value="Register">
+    </div>
+  </form>
+  <p class="text--center"><a href="/logout">Logout and go back to the log in page</a></p>
+</br>
+  <p class="text--center"><a href="/update">Update the existing users</a></p> 
+
+</div>
+
+
+{% if form.errors %}
+<div class="error-msg-div">
+	<p>Something went wrong in during the login process:</p>
+		{% for key, val in form.errors.items() %}
+		<p> {{ key.capitalize().replace('_', ' ') }} field: {{ val[0] }}</p>
+		{% endfor %}
+</div>
+{% endif %}
+
+<script>
+  document.getElementById('select_all').addEventListener('change', function() {
+      let checkboxes = document.querySelectorAll('.form-control-checkbox');
+      checkboxes.forEach(checkbox => {
+          checkbox.checked = this.checked;
+      });
+  });
+</script>
+
+<script>
+  // When the user clicks on div, open the popup
+  function myFunction() {
+    var popup = document.getElementById("myPopup");
+    popup.classList.toggle("show");
+  }
+</script>
+
+{% endblock %}
