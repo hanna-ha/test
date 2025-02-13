@@ -21,6 +21,8 @@ import glob
 
 
 
+
+
 # ###################################################################################
 
 
@@ -52,7 +54,7 @@ layout = dbc.Container([
             html.Div(id="subfolders-table-section"),
         ])
     ]),
-
+    html.Div(id='callback-output') , 
     # Data Upload/Selection Section
     dbc.Card([
         dbc.CardHeader("Load Your Data", style={"fontSize": "20px", "fontWeight": "bold"}),
@@ -62,6 +64,7 @@ layout = dbc.Container([
             html.Div(id="selection-status", style={"marginTop": "10px"}) , # Selection status message
       
         du.Upload(
+            # upload_api="/app/API/resumable" ,
         id="uploader",
         text="Drag & Drop Files Here or Click to Browse",
         filetypes=['csv', 'h5', 'gz', 'zip'],
@@ -77,7 +80,7 @@ layout = dbc.Container([
             "color": "#1971c2",
             "backgroundColor": "#f8f9fa"
         },
-        upload_id=None,
+        upload_id="tempolinc-upload",
    
     # upload_url="/custom-upload",  # Use the custom route
 ), 
@@ -122,7 +125,29 @@ layout = dbc.Container([
 # Callback
 # #################################################################################
 
+UPLOAD_FOLDER_ROOT = "dash_app/assets/user_upload_test"  # Set your upload folder
 
+@callback(
+    Output("upload-output", "children"),
+    Input("uploader", "isCompleted"),
+    State("uploader", "fileNames"),
+    State("uploader", "upload_id"),
+    prevent_initial_call=True
+)
+def handle_upload(is_completed, file_names, upload_id):
+    if not is_completed:
+        return html.Div("Upload in progress...")
+
+    if not file_names:
+        return html.Div("No files were uploaded.")
+
+    uploaded_files = ", ".join(file_names)
+    upload_path = os.path.join(UPLOAD_FOLDER_ROOT, upload_id)  # Path where files are stored
+
+    return html.Div([
+        html.P(f"✅ Uploaded files: {uploaded_files}"),
+        html.P(f"📁 Files stored in: {upload_path}"),
+    ])
 
 # Callback for refreshing project list after upload
 @callback(
@@ -265,27 +290,27 @@ def handle_project_selection(userpath, selected_project, n_click, stored_n_click
             return "", f"Hi {username}", "", stored_n_click, stored_selected_project, most_recent_action
     
     
-@callback(
-    Output("upload-output", "children"),
-    Input("uploader", "isCompleted"),
-    State("uploader", "fileNames"),
-    State("uploader", "upload_id"),
-    prevent_initial_call=True
-)
-def handle_upload(is_completed, file_names, upload_id):
-    print(f"is completeed {is_completed }")
-    print(f"fil name { file_names}")
-    print(f"upload id {upload_id}")
+# @callback(
+#     Output("upload-output", "children"),
+#     Input("uploader", "isCompleted"),
+#     State("uploader", "fileNames"),
+#     State("uploader", "upload_id"),
+#     prevent_initial_call=True
+# )
+# def handle_upload(is_completed, file_names, upload_id):
+#     print(f"is completeed {is_completed }")
+#     print(f"fil name { file_names}")
+#     print(f"upload id {upload_id}")
 
 
-    if is_completed:
-        if file_names:
-            return html.Div([
-                html.P(f"Uploaded files: {', '.join(file_names)}"),
-                html.P(f"Upload ID: {upload_id}"),
-                html.P("Files have been successfully uploaded!"),
-            ])
-        else:
-            return html.Div("No files were uploaded.")
-    return html.Div("Upload in progress...")
+#     if is_completed:
+#         if file_names:
+#             return html.Div([
+#                 html.P(f"Uploaded files: {', '.join(file_names)}"),
+#                 html.P(f"Upload ID: {upload_id}"),
+#                 html.P("Files have been successfully uploaded!"),
+#             ])
+#         else:
+#             return html.Div("No files were uploaded.")
+#     return html.Div("Upload in progress...")
 

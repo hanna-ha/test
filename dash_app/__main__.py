@@ -13,7 +13,7 @@ from dash_iconify import DashIconify
 from flask_login.utils import login_required
 from flask import session
 import pandas as pd
-
+import os 
 
 
 
@@ -26,6 +26,42 @@ import pandas as pd
 
 ###################################################################################
 
+
+# from dash_uploader.http_request_handler import BaseHttpRequestHandler
+# from flask import request
+
+# class CustomHttpRequestHandler(BaseHttpRequestHandler):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+
+#     def post_before(self):
+#         print("\n[UPLOAD DEBUG] Incoming POST request:")
+#         print("Headers:", request.headers)
+#         print("Form Data:", request.form)
+#         print("Files:", request.files)
+#         print("Request Path:", request.path)
+
+#     def post(self):
+#         self.post_before()
+#         returnvalue = super().post()
+#         self.post_after()
+#         return returnvalue
+
+#     def post_after(self):
+#         print("[UPLOAD DEBUG] Post-upload processing done.")
+
+#     def get_before(self):
+#         print("\n[UPLOAD DEBUG] Incoming GET request:")
+#         print("Request Path:", request.path)
+    
+#     def get(self):
+#         self.get_before()
+#         returnvalue = super().get()
+#         self.get_after()
+#         return returnvalue
+
+#     def get_after(self):
+#         print("[UPLOAD DEBUG] GET request processed.")
 
 
 # Creating the application
@@ -56,7 +92,8 @@ def create_dash_application(flask_app, local=False):
             # Base pathname
             name='DashApp',
             assets_folder='dash_app/assets',
-            url_base_pathname='/app/',
+        
+            url_base_pathname='/app/', # this sets the requests pathname prefix as well 
             use_pages=True, 
             pages_folder='dash_app/utils', 
             prevent_initial_callbacks=True,
@@ -65,11 +102,31 @@ def create_dash_application(flask_app, local=False):
 
     try : 
         # du.configure_upload(dash_app, "/home/hanna/dash_upload/", use_upload_id=True,  upload_api="API/resumable")
-        du.configure_upload(dash_app, f"/home/hanna/dash_upload/" , use_upload_id=True,  upload_api="API/resumable")
+        UPLOAD_FOLDER_ROOT = "dash_app/assets/user_upload_test"  # Set your upload folder
 
-        
+        if not os.path.exists(UPLOAD_FOLDER_ROOT):
+            os.makedirs(UPLOAD_FOLDER_ROOT)
+        # du.configure_upload(dash_app, f"/home/hanna/dash_upload/" , use_upload_id=True,  upload_api="API/resumable") 
+        du.configure_upload(
+            dash_app,
+            UPLOAD_FOLDER_ROOT,
+            use_upload_id=True,
+
+            upload_api="/API/resumable",  # Ensures the correct upload endpoint
+            # http_request_handler=CustomHttpRequestHandler
+        )
+
+
+                
         print('done ')
-        # print("Upload route:", dash_app.server.url_map)
+
+        print("Upload route:", dash_app.server.url_map)
+
+        print("Available Routes:")
+        for rule in dash_app.server.url_map.iter_rules():
+            print(rule)   
+
+  
     except Exception as E : 
         return(E)
 
@@ -402,4 +459,4 @@ if __name__ == '__main__':
     app = create_dash_application(__name__, local=True)
 
  
-    app.run_server(port=6663, host='192.168.168.60' , debug=True) # , debug=True
+    app.run_server(port=4414, host='192.168.168.60' , debug=True) # , debug=True
